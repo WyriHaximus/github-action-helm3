@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 
 mkdir ~/.kube/
 echo "${KUBECONFIG_FILE_CONTENTS}" > ~/.kube/config

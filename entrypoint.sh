@@ -2,7 +2,7 @@
 
 mkdir ~/.kube/
 echo "${KUBECONFIG_FILE_CONTENTS}" > ~/.kube/config
-echo "helm ${INPUT_ARGS}" > run.sh
-chod +x ./run.sh
-./run.sh
-rm ./run.sh
+echo "helm ${INPUT_ARGS}" > /tmp/run.sh
+chod +x /tmp/run.sh
+/tmp/run.sh
+rm /tmp/run.sh

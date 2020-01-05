@@ -1,0 +1,12 @@
+name: 'Helm 3'
+description: 'Helm 3'
+branding:
+  icon: 'stop-circle'
+  color: 'green'
+inputs:
+  args:
+    description: 'The arguments to pass to helm'
+    required: true
+runs:
+  using: 'docker'
+  image: 'Dockerfile'

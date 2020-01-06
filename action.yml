@@ -4,8 +4,8 @@ branding:
   icon: 'stop-circle'
   color: 'green'
 inputs:
-  args:
-    description: 'The arguments to pass to helm'
+  exec:
+    description: 'The full helm command to run (including helm)'
     required: true
 runs:
   using: 'docker'

@@ -15,10 +15,10 @@ chmod +x ./run.sh
 echo -e "\033[36mExecuting helm\033[0m"
 ./run.sh
 
-echo -e "\033[36mCleaning up\033[0m"
-echo -e "\033[36m\texec\033[0m"
+echo -e "\033[36mCleaning up: \033[0m"
 rm ./run.sh -Rf
+echo -e "\033[36m  - exec ✅ \033[0m"
 if [ ! -z $INPUT_KUBECONFIG ] && [ $INPUT_KUBECONFIG_CLEANUP != "false" ] ; then
-  echo -e "\033[36m\tkubeconfig\033[0m"
   rm ~/.kube/config -Rf
+  echo -e "\033[36m  - kubeconfig ✅ \033[0m"
 fi

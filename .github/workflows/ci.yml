@@ -36,7 +36,11 @@ jobs:
       - uses: actions/checkout@v1
       - uses: ./
         env:
-          exec: touch ./foo.bar
+          exec: |
+            pwd
+            echo -e "whoop whoop" ./foo.bar
+            sleep 1
+            cat ./foo.bar
           kubeconfig: tada
       - run: cat ./foo.bar
   tests-helm-works:

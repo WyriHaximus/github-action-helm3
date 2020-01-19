@@ -25,7 +25,7 @@ jobs:
       - run: mkdir -p $(echo "./clair/docker.pkg.github.com/${GITHUB_REPOSITORY}" | tr '[:upper:]' '[:lower:]')
       - run: docker-compose -f .docker/security/docker-compose.yml -p clair-ci up -d
       - run: sleep 10
-      - run: echo -e "$(docker build ." | xargs -I % sh -c 'clair-scanner --ip 172.17.0.1 -r "./clair/%.json" -l ./clair/clair.log % || (echo "% is vulnerable" && exit 1)'
+      - run: echo -e "$(docker build .)" | xargs -I % sh -c 'clair-scanner --ip 172.17.0.1 -r "./clair/%.json" -l ./clair/clair.log % || (echo "% is vulnerable" && exit 1)'
       - run: docker-compose -f .docker/security/docker-compose.yml -p clair-ci down
       - run: docker images
   tests-exec-executed:

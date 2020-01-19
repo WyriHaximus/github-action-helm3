@@ -21,12 +21,12 @@ jobs:
         run: |
           sudo curl -L https://github.com/arminc/clair-scanner/releases/download/v8/clair-scanner_linux_amd64 -o /usr/local/bin/clair-scanner
           sudo chmod +x /usr/local/bin/clair-scanner
-      - run: docker build -t temporary-helm3-github-action-docker-image-name-RNG .
+      - run: docker build -t temporary-helm3-github-action-docker-image-name-rng .
       - run: docker images
       - run: mkdir -p $(echo "./clair/docker.pkg.github.com/${GITHUB_REPOSITORY}" | tr '[:upper:]' '[:lower:]')
       - run: docker-compose -f .docker/security/docker-compose.yml -p clair-ci up -d
       - run: sleep 10
-      - run: echo -e "temporary-helm3-github-action-docker-image-name-RNG" | xargs -I % sh -c 'clair-scanner --ip 172.17.0.1 -r "./clair/%.json" -l ./clair/clair.log % || (echo "% is vulnerable" && exit 1)'
+      - run: echo -e "temporary-helm3-github-action-docker-image-name-rng" | xargs -I % sh -c 'clair-scanner --ip 172.17.0.1 -r "./clair/%.json" -l ./clair/clair.log % || (echo "% is vulnerable" && exit 1)'
       - run: docker-compose -f .docker/security/docker-compose.yml -p clair-ci down
       - run: docker images
   tests-exec-executed:

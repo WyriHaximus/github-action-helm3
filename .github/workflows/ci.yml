@@ -34,20 +34,29 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v1
-      - run: docker run -e INPUT_EXEC="touch ./foo.bar" -v `pwd`:/workdir $(docker build -q .)
+      - uses: ./
+        env:
+          exec: touch ./foo.bar
+          kubeconfig: tada
       - run: cat ./foo.bar
   tests-helm-works:
     needs: docker-file-security
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v1
-      - run: docker run -e INPUT_EXEC="helm version" $(docker build -q .)
+      - uses: ./
+        env:
+          exec: helm version
+          kubeconfig: tada
   tests-kubeconfig-cleanedup:
     needs: docker-file-security
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v1
-      - run: docker run -e INPUT_EXEC="touch ./foo.bar" -e INPUT_KUBECONFIG="tada" -v `pwd`:/workdir $(docker build -q .)
+      - uses: ./
+        env:
+          exec: touch ./foo.bar
+          kubeconfig: tada
       - run: |
           if [ -e "~/.kube/config" ]; then
               exit 1
@@ -59,7 +68,11 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v1
-      - run: docker run -e INPUT_EXEC="uptime" -e INPUT_KUBECONFIG="tada" -e INPUT_KUBECONFIG_CLEANUP="false" -v `pwd`:/workdir $(docker build -q .)
+      - uses: ./
+        env:
+          exec: uptime
+          kubeconfig: tada
+          kubeconfig_cleanup: false
       - run: |
           if [ -e "~/.kube/config" ]; then
               exit 0

@@ -1,5 +1,6 @@
 FROM alpine/helm:3.0.2
 
+# hadolint ignore=DL3002
 USER root
 
 RUN mkdir /workdir

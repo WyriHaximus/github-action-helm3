@@ -1,0 +1,67 @@
+name: CI
+on:
+  push:
+jobs:
+  lint-dockerfile:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v1
+      - name: Lint Dockerfile
+        uses: docker://hadolint/hadolint:latest-debian
+        with:
+          entrypoint: hadolint
+          args: Dockerfile
+  docker-file-security:
+    needs: lint-dockerfile
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v1
+      - run: docker version
+      - name: Install clair-scanner
+        run: |
+          sudo curl -L https://github.com/arminc/clair-scanner/releases/download/v8/clair-scanner_linux_amd64 -o /usr/local/bin/clair-scanner
+          sudo chmod +x /usr/local/bin/clair-scanner
+      - run: docker images
+      - run: mkdir -p $(echo "./clair/docker.pkg.github.com/${GITHUB_REPOSITORY}" | tr '[:upper:]' '[:lower:]')
+      - run: docker-compose -f .docker/security/docker-compose.yml -p clair-ci up -d
+      - run: sleep 10
+      - run: echo -e "$(docker build ." | xargs -I % sh -c 'clair-scanner --ip 172.17.0.1 -r "./clair/%.json" -l ./clair/clair.log % || (echo "% is vulnerable" && exit 1)'
+      - run: docker-compose -f .docker/security/docker-compose.yml -p clair-ci down
+      - run: docker images
+  tests-exec-executed:
+    needs: docker-file-security
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v1
+      - run: docker run -e INPUT_EXEC="touch ./foo.bar" -v `pwd`:/workdir $(docker build -q .)
+      - run: cat ./foo.bar
+  tests-helm-works:
+    needs: docker-file-security
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v1
+      - run: docker run -e INPUT_EXEC="helm version" $(docker build -q .)
+  tests-kubeconfig-cleanedup:
+    needs: docker-file-security
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v1
+      - run: docker run -e INPUT_EXEC="touch ./foo.bar" -e INPUT_KUBECONFIG="tada" -v `pwd`:/workdir $(docker build -q .)
+      - run: |
+          if [ -e "~/.kube/config" ]; then
+              exit 1
+          else
+              exit 0
+          fi
+  tests-kubeconfig-not-cleanedup:
+    needs: docker-file-security
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v1
+      - run: docker run -e INPUT_EXEC="uptime" -e INPUT_KUBECONFIG="tada" -e INPUT_KUBECONFIG_CLEANUP="false" -v `pwd`:/workdir $(docker build -q .)
+      - run: |
+          if [ -e "~/.kube/config" ]; then
+              exit 0
+          else
+              exit 1
+          fi

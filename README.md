@@ -1,4 +1,4 @@
-# github-action-helm3
+# Helm 3 Github Action
 
 Slim wrapper around helm3 Docker image
 
@@ -16,21 +16,30 @@ The command to execute inside the Docker image.
 * *Type*: `string`
 * *Example*: `helm version`
 
-## Environment
+## kubeconfig
 
-### KUBECONFIG_FILE_CONTENTS
-
-The contents of the `~/.kube/config` used by kubectl and helm to authenticate and communicate with your kubernetes cluster. 
+The contents of the `~/.kube/config` used by kubectl and helm to authenticate and communicate with your kubernetes 
+cluster. *Note: this can be empty if you want to use this action to do helm lints. The contents of this input will 
+be appended to `~/.kube/config` when non-empty.*
 
 * *Required*: `no`
 * *Type*: `string`
+
+
+## kubeconfig_cleanup
+
+Whether remove `~/.kube/config` after running `exec`.
+
+* *Required*: `no`
+* *Type*: `bool`
+* *Default*: `true`
 
 ## Output
 
 This action has only one output and that's the `number` output. This is the number you see in the HTML URL of the 
 milestone and can be used to refer to in other actions when creating PR's as shown in the example below.
 
-## Example
+## Examples
 
 The following example is triggered on the tagging of a new release and update the helm charts `appVersion` to the tag 
 title before calling helm to install the application in `./.helm/app/` to kubernetes: 
@@ -52,12 +61,27 @@ jobs:
           echo -e "\r\nappVersion: v${GITHUB_REF##*/}\r\n" >> ./.helm/app/Chart.yaml &&
           cat ./.helm/app/Chart.yaml
       - name: Deploy
-        uses: WyriHaximus/github-action-helm3@master
+        uses: WyriHaximus/github-action-helm3@v1
         with:
           exec: helm upgrade APP_NAME ./.helm/app/ --install --wait --atomic --namespace=APP_NAMESPACE --set=app.name=APP_NAME --values=./.helm/app/values.yaml
-        env:
-          KUBECONFIG_FILE_CONTENTS: '${{ secrets.KUBECONFIG }}'
+          kubeconfig: '${{ secrets.KUBECONFIG }}'
+```
 
+The following example shows how you can use this action to lint your helm files in (for example) `./.helm/app/`.
+
+```yaml
+name: CI
+on:
+  push:
+jobs:
+  lint-helm:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v1
+      - name: Lint Helm
+        uses: WyriHaximus/github-action-helm3@v1
+        with:
+          exec: helm lint ./.helm/app/
 ```
 
 ## License ##

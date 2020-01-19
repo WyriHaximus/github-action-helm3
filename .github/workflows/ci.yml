@@ -36,13 +36,9 @@ jobs:
       - uses: actions/checkout@v1
       - uses: ./
         env:
-          exec: |
-            pwd
-            echo -e "whoop whoop" ./foo.bar
-            sleep 1
-            cat ./foo.bar
+          exec: echo -e "whoop whoop" $GITHUB_WORKSPACE/foo.bar
           kubeconfig: tada
-      - run: cat ./foo.bar
+      - run: cat $GITHUB_WORKSPACE/foo.bar
   tests-helm-works:
     needs: docker-file-security
     runs-on: ubuntu-latest

@@ -29,16 +29,6 @@ jobs:
       - run: echo -e "temporary-helm3-github-action-docker-image-name-rng" | xargs -I % sh -c 'clair-scanner --ip 172.17.0.1 -r "./clair/%.json" -l ./clair/clair.log % || (echo "% is vulnerable" && exit 1)'
       - run: docker-compose -f .docker/security/docker-compose.yml -p clair-ci down
       - run: docker images
-  tests-exec-executed:
-    needs: docker-file-security
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v1
-      - uses: ./
-        env:
-          exec: echo -e "whoop whoop" $GITHUB_WORKSPACE/foo.bar
-          kubeconfig: tada
-      - run: cat $GITHUB_WORKSPACE/foo.bar
   tests-helm-works:
     needs: docker-file-security
     runs-on: ubuntu-latest
@@ -48,34 +38,3 @@ jobs:
         env:
           exec: helm version
           kubeconfig: tada
-  tests-kubeconfig-cleanedup:
-    needs: docker-file-security
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v1
-      - uses: ./
-        env:
-          exec: touch ./foo.bar
-          kubeconfig: tada
-      - run: |
-          if [ -e "~/.kube/config" ]; then
-              exit 1
-          else
-              exit 0
-          fi
-  tests-kubeconfig-not-cleanedup:
-    needs: docker-file-security
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v1
-      - uses: ./
-        env:
-          exec: uptime
-          kubeconfig: tada
-          kubeconfig_cleanup: false
-      - run: |
-          if [ -e "~/.kube/config" ]; then
-              exit 0
-          else
-              exit 1
-          fi

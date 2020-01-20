@@ -10,9 +10,6 @@ inputs:
   kubeconfig:
     description: 'The full helm command to run (including helm)'
     required: false
-  kubeconfig_cleanup:
-    description: 'The full helm command to run (including helm)'
-    required: false
 runs:
   using: 'docker'
   image: 'Dockerfile'

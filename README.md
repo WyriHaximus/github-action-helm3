@@ -20,19 +20,10 @@ The command to execute inside the Docker image.
 
 The contents of the `~/.kube/config` used by kubectl and helm to authenticate and communicate with your kubernetes 
 cluster. *Note: this can be empty if you want to use this action to do helm lints. The contents of this input will 
-be appended to `~/.kube/config` when non-empty.*
+be appended to `~/.kube/config`, and will always be removed afterwards.*
 
 * *Required*: `no`
 * *Type*: `string`
-
-
-## kubeconfig_cleanup
-
-Whether remove `~/.kube/config` after running `exec`.
-
-* *Required*: `no`
-* *Type*: `bool`
-* *Default*: `true`
 
 ## Output
 

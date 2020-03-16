@@ -1,4 +1,4 @@
-FROM alpine/helm:3.1.1
+FROM alpine/helm:3.1.2
 
 # hadolint ignore=DL3002
 USER root

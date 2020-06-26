@@ -94,14 +94,39 @@ jobs:
         exec:
           - "helm version"
           - "helm repo add WyriHaximusNet https://helm.wyrihaximus.net/"
-          - "helm repo add WyriHaximusNet https://helm.wyrihaximus.net/ && helm repo list "
+          - "helm repo add WyriHaximusNet https://helm.wyrihaximus.net/ && helm repo list"
           - "helm plugin install https://github.com/hypnoglow/helm-s3.git"
-          - "helm plugin install https://github.com/hypnoglow/helm-s3.git && plugin list"
+          - "helm plugin install https://github.com/hypnoglow/helm-s3.git && helm plugin list"
           - "helm env"
     steps:
       - uses: actions/checkout@v1
       - run: sed -i "s/master/sha-${GITHUB_SHA}/g" Dockerfile
       - uses: ./
-        env:
+        with:
           exec: ${{ matrix.exec }}
           kubeconfig: tada
+  tests-helm-output:
+    name: "Testing Helm Output"
+    needs:
+      - build-docker-image
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v1
+      - run: sed -i "s/master/sha-${GITHUB_SHA}/g" Dockerfile
+      - uses: ./
+        id: helm3
+        with:
+          exec: helm repo add WyriHaximusNet https://helm.wyrihaximus.net/ && helm repo list
+          kubeconfig: tada
+      - run: |
+          php -r "exit(strpos('${HELM_OUTPUT}', 'WyriHaximusNet') !== false ? 0 : 255);"
+        env:
+          HELM_OUTPUT: ${{ steps.helm3.outputs.helm_output }}
+      - run: |
+          php -r "exit(strpos('${HELM_OUTPUT}', 'has been added to your repositories') !== false ? 0 : 255);"
+        env:
+          HELM_OUTPUT: ${{ steps.helm3.outputs.helm_output }}
+      - run: |
+          php -r "exit(strpos('${HELM_OUTPUT}', 'https://helm.wyrihaximus.net/') !== false ? 0 : 255);"
+        env:
+          HELM_OUTPUT: ${{ steps.helm3.outputs.helm_output }}

@@ -85,14 +85,23 @@ jobs:
         if: contains(github.ref, 'dependabot') == false
         run: docker push "${DOCKER_IMAGE}:sha-${GITHUB_SHA}"
   tests-helm-works:
+    name: "Testing Helm Command: ${{ matrix.exec }}"
     needs:
-      - lint-dockerfile
       - build-docker-image
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        exec:
+          - "helm version"
+          - "helm repo add WyriHaximusNet https://helm.wyrihaximus.net/"
+          - "helm repo add WyriHaximusNet https://helm.wyrihaximus.net/ && helm repo list "
+          - "helm plugin install https://github.com/hypnoglow/helm-s3.git"
+          - "helm plugin install https://github.com/hypnoglow/helm-s3.git && plugin list"
+          - "helm env"
     steps:
       - uses: actions/checkout@v1
       - run: sed -i "s/master/sha-${GITHUB_SHA}/g" Dockerfile
       - uses: ./
         env:
-          exec: helm version
+          exec: ${{ matrix.exec }}
           kubeconfig: tada

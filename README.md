@@ -18,8 +18,8 @@ The command to execute inside the Docker image.
 
 ## kubeconfig
 
-The contents of the `~/.kube/config` used by kubectl and helm to authenticate and communicate with your kubernetes 
-cluster. *Note: this can be empty if you want to use this action to do helm lints. The contents of this input will 
+The contents of the `~/.kube/config` used by kubectl and helm to authenticate and communicate with your kubernetes
+cluster. *Note: this can be empty if you want to use this action to do helm lints. The contents of this input will
 be appended to `~/.kube/config`, and will always be removed afterwards.*
 
 * *Required*: `no`
@@ -27,13 +27,13 @@ be appended to `~/.kube/config`, and will always be removed afterwards.*
 
 ## Output
 
-This action has only one output and that's the `number` output. This is the number you see in the HTML URL of the 
+This action has only one output and that's the `number` output. This is the number you see in the HTML URL of the
 milestone and can be used to refer to in other actions when creating PR's as shown in the example below.
 
 ## Examples
 
-The following example is triggered on the tagging of a new release and update the helm charts `appVersion` to the tag 
-title before calling helm to install the application in `./.helm/app/` to kubernetes: 
+The following example is triggered on the tagging of a new release and update the helm charts `appVersion` to the tag
+title before calling helm to install the application in `./.helm/app/` to kubernetes:
 
 ```yaml
 name: Deploy
@@ -52,7 +52,7 @@ jobs:
           echo -e "\r\nappVersion: v${GITHUB_REF##*/}\r\n" >> ./.helm/app/Chart.yaml &&
           cat ./.helm/app/Chart.yaml
       - name: Deploy
-        uses: WyriHaximus/github-action-helm3@v1
+        uses: WyriHaximus/github-action-helm3@v2
         with:
           exec: helm upgrade APP_NAME ./.helm/app/ --install --wait --atomic --namespace=APP_NAMESPACE --set=app.name=APP_NAME --values=./.helm/app/values.yaml
           kubeconfig: '${{ secrets.KUBECONFIG }}'
@@ -70,7 +70,7 @@ jobs:
     steps:
       - uses: actions/checkout@v1
       - name: Lint Helm
-        uses: WyriHaximus/github-action-helm3@v1
+        uses: WyriHaximus/github-action-helm3@v2
         with:
           exec: helm lint ./.helm/app/
 ```

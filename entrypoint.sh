@@ -3,8 +3,14 @@
 set -e
 
 echo -e "\033[36mSetting up kubectl configuration\033[0m"
-mkdir -p ~/.kube/
-echo "${INPUT_KUBECONFIG}" > ~/.kube/config
+
+mkdir ~/.kube/ || true
+if [ -f "~/.kube/config" ]; then
+  echo -e "\033[36mExisting kubeconfig found, using that and ignoring input\033[0m"
+else
+  echo -e "\033[36mUsing kubeconfig from input\033[0m"
+  echo "${INPUT_KUBECONFIG}" > ~/.kube/config
+fi
 
 echo -e "\033[36mPreparing helm execution\033[0m"
 echo "${INPUT_EXEC}" > run.sh

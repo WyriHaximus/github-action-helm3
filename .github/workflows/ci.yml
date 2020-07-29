@@ -1,7 +1,4 @@
 name: Continuous Integration
-env:
-  DOCKER_IMAGE: wyrihaximusgithubactions/helm3
-  DOCKER_BUILDKIT: 1
 on:
   push:
     branches:
@@ -14,7 +11,9 @@ jobs:
     outputs:
       REF: ${{ steps.generate-ref.outputs.ref }}
     steps:
+      - run: helm version
       - uses: actions/checkout@v1
+      - run: helm version
       - id: generate-ref
         name: Generate Ref
         run: |
@@ -26,68 +25,8 @@ jobs:
           fi
           echo "${GITHUB_REF##*/}"
           echo "::set-output name=ref::${GITHUB_REF##*/}"
-  lint-dockerfile:
-    name: Lint Dockerfile
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v1
-      - name: Lint Dockerfile
-        uses: docker://hadolint/hadolint:latest-debian
-        with:
-          entrypoint: hadolint
-          args: Dockerfile-build
-  build-docker-image:
-    name: Build Docker image
-    needs:
-      - generate-ref
-      - lint-dockerfile
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v1
-      - run: docker version
-      - run: docker images
-      - name: Install clair-scanner
-        run: |
-          sudo curl -L https://github.com/arminc/clair-scanner/releases/download/v8/clair-scanner_linux_amd64 -o /usr/local/bin/clair-scanner
-          sudo chmod +x /usr/local/bin/clair-scanner
-      - run: docker images
-      - run: mkdir -p $(echo "./clair/${DOCKER_IMAGE}:${REF}" | tr '[:upper:]' '[:lower:]')
-        env:
-          REF: ${{ needs.generate-ref.outputs.ref }}
-      - run: docker-compose -f .docker/security/docker-compose.yml -p clair-ci up -d
-      - run: docker build --no-cache -t "${DOCKER_IMAGE}:${REF}" . -f Dockerfile-build --target=runtime
-        env:
-          REF: ${{ needs.generate-ref.outputs.ref }}
-      - run: docker tag "${DOCKER_IMAGE}:${REF}" "${DOCKER_IMAGE}:sha-${GITHUB_SHA}"
-        env:
-          REF: ${{ needs.generate-ref.outputs.ref }}
-      - run: echo -e "${DOCKER_IMAGE}:${REF}" | xargs -I % sh -c 'clair-scanner --ip 172.17.0.1 -r "./clair/%.json" -l ./clair/clair.log % || (echo "% is vulnerable" && exit 1)'
-        env:
-          REF: ${{ needs.generate-ref.outputs.ref }}
-      - run: docker-compose -f .docker/security/docker-compose.yml -p clair-ci down
-      - run: docker images
-      - name: Login to Docker Hub
-        if: contains(github.ref, 'dependabot') == false
-        env:
-          DOCKER_USER: ${{ secrets.HUB_USERNAME }}
-          DOCKER_PASSWORD: ${{ secrets.HUB_PASSCODE }}
-        run: |
-          echo "${{ secrets.DOCKER_PASSWORD }}" | \
-          docker login \
-            --username "${{ secrets.DOCKER_USER }}" \
-            --password-stdin
-      - name: Push branch image to Docker Hub
-        if: contains(github.ref, 'dependabot') == false
-        run: docker push "${DOCKER_IMAGE}:${REF}"
-        env:
-          REF: ${{ needs.generate-ref.outputs.ref }}
-      - name: Push commit sha image to Docker Hub
-        if: contains(github.ref, 'dependabot') == false
-        run: docker push "${DOCKER_IMAGE}:sha-${GITHUB_SHA}"
   tests-helm-works:
     name: "Testing Helm Command: ${{ matrix.exec }}"
-    needs:
-      - build-docker-image
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -100,19 +39,16 @@ jobs:
           - "helm env"
     steps:
       - uses: actions/checkout@v1
-      - run: sed -i "s/master/sha-${GITHUB_SHA}/g" Dockerfile
       - uses: ./
         with:
           exec: ${{ matrix.exec }}
           kubeconfig: tada
   tests-helm-output:
     name: "Testing Helm Output"
-    needs:
-      - build-docker-image
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v1
-      - run: sed -i "s/master/sha-${GITHUB_SHA}/g" Dockerfile
+      - run: helm version
       - uses: ./
         id: helm3
         with:
@@ -130,14 +66,11 @@ jobs:
           php -r "exit(strpos('${HELM_OUTPUT}', 'https://helm.wyrihaximus.net/') !== false ? 0 : 255);"
         env:
           HELM_OUTPUT: ${{ steps.helm3.outputs.helm_output }}
-  tests-helm-install:
-    name: "Testing Helm Install"
-    needs:
-      - build-docker-image
+  tests-helm-install-input:
+    name: "Testing Helm Install (input)"
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v1
-      - run: sed -i "s/master/sha-${GITHUB_SHA}/g" Dockerfile
       - name: Create k8s Kind Cluster
         uses: helm/kind-action@v1.0.0-rc.1
       - name: Get running image ID
@@ -169,7 +102,7 @@ jobs:
             printf "::set-output name=count::%s" $(helm list | grep ducker-hub-exporter | wc -l)
           kubeconfig: ${{ steps.kubeconfig.outputs.kubeconfig }}
       - run: |
-          php -r "exit('${COUNT}' === '0' ? 0 : 255);"
+          php -r "exit(trim('${COUNT}') === '0' ? 0 : 255);"
         env:
           COUNT: ${{ steps.helmlistcountfirst.outputs.count }}
       - name: Install ducker-hub-exporter
@@ -191,10 +124,11 @@ jobs:
         id: helmlistcountseccond
         with:
           exec: |
+            helm list
             printf "::set-output name=count::%s" $(helm list | grep ducker-hub-exporter | wc -l)
           kubeconfig: ${{ steps.kubeconfig.outputs.kubeconfig }}
       - run: |
-          php -r "exit('${COUNT}' === '1' ? 0 : 255);"
+          php -r "exit(trim('${COUNT}') === '1' ? 0 : 255);"
         env:
           COUNT: ${{ steps.helmlistcountseccond.outputs.count }}
       - name: UnInstall ducker-hub-exporter
@@ -208,9 +142,77 @@ jobs:
         id: helmlistcountthird
         with:
           exec: |
+            helm list
             printf "::set-output name=count::%s" $(helm list | grep ducker-hub-exporter | wc -l)
           kubeconfig: ${{ steps.kubeconfig.outputs.kubeconfig }}
       - run: |
-          php -r "exit('${COUNT}' === '0' ? 0 : 255);"
+          php -r "exit(trim('${COUNT}') === '0' ? 0 : 255);"
         env:
           COUNT: ${{ steps.helmlistcountthird.outputs.count }}
+  tests-helm-install-file:
+    name: "Testing Helm Install (file)"
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v1
+      - name: Create k8s Kind Cluster
+        uses: helm/kind-action@v1.0.0-rc.1
+      - name: Get running image ID
+        id: ps
+        run: printf "::set-output name=id::%s" $(docker ps --format "{{.ID}}")
+        env:
+          IMAGE: ${{ steps.build.outputs.tag }}
+      - name: Get running image IP
+        id: inspect
+        run: printf "::set-output name=ip::%s" $(docker inspect -f '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' ${IMAGE_ID})
+        env:
+          IMAGE_ID: ${{ steps.ps.outputs.id }}
+      - run: sed -i "s/127.0.0.1:32768/${KIND_IP}:6443/g" ~/.kube/config
+        env:
+          KIND_IP: ${{ steps.inspect.outputs.ip }}
+      - name: List installed packages
+        uses: ./
+        id: helmlistcountfirst
+        with:
+          exec: |
+            helm list | grep ducker-hub-exporter | wc -l
+      - run: |
+          php -r "exit(trim('${COUNT}') === '0' ? 0 : 255);"
+        env:
+          COUNT: ${{ steps.helmlistcountfirst.outputs.helm_output }}
+      - name: Install ducker-hub-exporter
+        uses: ./
+        id: helm3
+        with:
+          exec: |
+            helm repo add WyriHaximusNet https://helm.wyrihaximus.net/
+            helm install ducker-hub-exporter WyriHaximusNet/docker-hub-exporter --atomic
+      - name: List installed packages
+        uses: ./
+        with:
+          exec: |
+            helm list
+      - name: List installed packages
+        uses: ./
+        id: helmlistcountseccond
+        with:
+          exec: |
+            helm list | grep ducker-hub-exporter | wc -l
+      - run: |
+          php -r "exit(trim('${COUNT}') === '1' ? 0 : 255);"
+        env:
+          COUNT: ${{ steps.helmlistcountseccond.outputs.helm_output }}
+      - name: UnInstall ducker-hub-exporter
+        uses: ./
+        with:
+          exec: |
+            helm uninstall ducker-hub-exporter
+      - name: List installed packages
+        uses: ./
+        id: helmlistcountthird
+        with:
+          exec: |
+            helm list | grep ducker-hub-exporter | wc -l
+      - run: |
+          php -r "exit(trim('${COUNT}') === '0' ? 0 : 255);"
+        env:
+          COUNT: ${{ steps.helmlistcountthird.outputs.helm_output }}

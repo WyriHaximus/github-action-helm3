@@ -3,7 +3,7 @@
 set -e
 
 echo -e "\033[36mSetting up kubectl configuration\033[0m"
-mkdir ~/.kube/ || true
+mkdir -p ~/.kube/
 echo "${INPUT_KUBECONFIG}" > ~/.kube/config
 
 echo -e "\033[36mPreparing helm execution\033[0m"

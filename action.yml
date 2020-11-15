@@ -11,5 +11,5 @@ inputs:
     description: 'The full helm command to run (including helm)'
     required: false
 runs:
-  using: 'docker'
-  image: 'Dockerfile'
+  using: 'node12'
+  main: 'main.js'

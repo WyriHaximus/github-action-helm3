@@ -1,6 +1,6 @@
 # Helm 3 Github Action
 
-Slim wrapper around helm3 Docker image
+Slim wrapper around [helm3](https://github.com/helm/helm) Docker image
 
 ![Example output showing this action in action](images/output.png)
 

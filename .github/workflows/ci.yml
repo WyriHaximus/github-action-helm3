@@ -155,7 +155,7 @@ jobs:
     steps:
       - uses: actions/checkout@v1
       - name: Create k8s Kind Cluster
-        uses: helm/kind-action@v1.0.0-rc.1
+        uses: helm/kind-action@v1.2.0
       - name: Get running image ID
         id: ps
         run: printf "::set-output name=id::%s" $(docker ps --format "{{.ID}}")

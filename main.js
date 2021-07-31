@@ -1,7 +1,7 @@
 async function main() {
     const homedir = require('os').homedir();
     const fs = require('fs');
-    const {execFileSync} = require('child_process');
+    const {execFile} = require('child_process');
     const tmp = require('tmp');
     const {waitFile} = require('wait-file');
 
@@ -44,10 +44,24 @@ async function main() {
 
     try {
         console.log("\033[36mExecuting helm\033[0m");
-        const result = execFileSync(execShFile.name).toString();
-        console.log(result);
+        result = await new Promise((resolve, reject) => {
+            const process = execFile(execShFile.name);
+            process.stdout.on('data', console.log);
+            process.stderr.on('data', console.log);
+            let result = '';
+            process.stdout.on('data', (data) => result += data);
+            process.stderr.on('data', (data) => result += data);
+            process.on('exit', (code) => {
+                if (code === 0) {
+                    resolve(result);
+                } else {
+                    reject(result);
+                }
+            });
+        });
         console.log('::set-output name=helm_output::' + result.split('%').join('%25').split('\n').join('%0A').split('\r').join('%0D'));
     } catch (error) {
+        console.error(error);
         process.exit(1);
     } finally {
         console.log("\033[36mCleaning up: \033[0m");

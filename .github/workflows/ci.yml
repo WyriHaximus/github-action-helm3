@@ -25,11 +25,24 @@ jobs:
           fi
           echo "${GITHUB_REF##*/}"
           echo "::set-output name=ref::${GITHUB_REF##*/}"
-  tests-helm-works:
-    name: "Testing Helm Command: ${{ matrix.exec }}"
+  runner-matrix:
+    name: Runner Matrix
     runs-on: ubuntu-latest
+    outputs:
+      runner: ${{ steps.runner-matrix.outputs.runner }}
+    steps:
+      - id: runner-matrix
+        name: Runner Matrix
+        run: |
+          echo "::set-output name=runner::[\"ubuntu-latest\"]"
+  tests-helm-works:
+    name: "Testing Helm Command: ${{ matrix.exec }} on ${{ matrix.runner }}"
+    runs-on: ${{ matrix.runner }}
+    needs:
+      - runner-matrix
     strategy:
       matrix:
+        runner: ${{ fromJson(needs.runner-matrix.outputs.runner) }}
         exec:
           - "helm version"
           - "helm repo add WyriHaximusNet https://helm.wyrihaximus.net/"
@@ -44,8 +57,13 @@ jobs:
           exec: ${{ matrix.exec }}
           kubeconfig: tada
   tests-helm-output:
-    name: "Testing Helm Output"
-    runs-on: ubuntu-latest
+    name: "Testing Helm Output ${{ matrix.runner }}"
+    runs-on: ${{ matrix.runner }}
+    needs:
+      - runner-matrix
+    strategy:
+      matrix:
+        runner: ${{ fromJson(needs.runner-matrix.outputs.runner) }}
     steps:
       - uses: actions/checkout@v1
       - run: helm version
@@ -67,8 +85,13 @@ jobs:
         env:
           HELM_OUTPUT: ${{ steps.helm3.outputs.helm_output }}
   tests-helm-install-input:
-    name: "Testing Helm Install (input)"
-    runs-on: ubuntu-latest
+    name: "Testing Helm Install (input) ${{ matrix.runner }}"
+    runs-on: ${{ matrix.runner }}
+    needs:
+      - runner-matrix
+    strategy:
+      matrix:
+        runner: ${{ fromJson(needs.runner-matrix.outputs.runner) }}
     steps:
       - uses: actions/checkout@v1
       - name: Create k8s Kind Cluster
@@ -150,8 +173,13 @@ jobs:
         env:
           COUNT: ${{ steps.helmlistcountthird.outputs.count }}
   tests-helm-install-file:
-    name: "Testing Helm Install (file)"
-    runs-on: ubuntu-latest
+    name: "Testing Helm Install (file) ${{ matrix.runner }}"
+    runs-on: ${{ matrix.runner }}
+    needs:
+      - runner-matrix
+    strategy:
+      matrix:
+        runner: ${{ fromJson(needs.runner-matrix.outputs.runner) }}
     steps:
       - uses: actions/checkout@v1
       - name: Create k8s Kind Cluster

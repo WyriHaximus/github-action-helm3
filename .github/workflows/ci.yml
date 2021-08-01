@@ -34,7 +34,7 @@ jobs:
       - id: runner-matrix
         name: Runner Matrix
         run: |
-          echo "::set-output name=runner::[\"ubuntu-latest\"]"
+          echo "::set-output name=runner::[\"ubuntu-latest\", \"windows-latest\"]"
   tests-helm-works:
     name: "Testing Helm Command: ${{ matrix.exec }} on ${{ matrix.runner }}"
     runs-on: ${{ matrix.runner }}

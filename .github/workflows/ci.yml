@@ -122,7 +122,7 @@ jobs:
         id: helmlistcountfirst
         with:
           exec: |
-            printf "::set-output name=count::%s" $(helm list | grep ducker-hub-exporter | wc -l)
+            printf "count=%s\n" $(helm list | grep ducker-hub-exporter | wc -l) >> $GITHUB_OUTPUT
           kubeconfig: ${{ steps.kubeconfig.outputs.kubeconfig }}
       - run: |
           php -r "exit(trim('${COUNT}') === '0' ? 0 : 255);"

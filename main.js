@@ -95,7 +95,7 @@ async function main() {
                 }
             });
         });
-        console.log('::set-output name=helm_output::' + result.split('%').join('%25').split('\n').join('%0A').split('\r').join('%0D'));
+        fs.appendFileSync(process.env.GITHUB_OUTPUT, 'helm_output=' + result.trim().split('%').join('%25').split('\n').join('%0A').split('\r').join('%0D') + '\n');
     } catch (error) {
         process.exit(1);
     } finally {

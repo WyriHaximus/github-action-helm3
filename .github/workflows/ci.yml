@@ -244,3 +244,23 @@ jobs:
           php -r "exit(trim('${COUNT}') === '0' ? 0 : 255);"
         env:
           COUNT: ${{ steps.helmlistcountthird.outputs.helm_output }}
+## Keeping this in for future use, but GitHub Actions doesn't turn this job green so it's considered fail, which it isn't 🤣
+#  ensure-failure-on-non-0-exit-code:
+#    name: "Ensure failure on non 0 exit code ${{ matrix.runner }}"
+#    runs-on: ${{ matrix.runner }}
+#    continue-on-error: true
+#    needs:
+#      - runner-matrix
+#    strategy:
+#      matrix:
+#        runner: ${{ fromJson(needs.runner-matrix.outputs.runner) }}
+#    steps:
+#      - uses: actions/checkout@v1
+#      - name: List installed packages
+#        uses: ./
+#        with:
+#          exec: |
+#            exit 1
+#      - run: |
+#          exit 0
+#        if: ${{ failure() }}

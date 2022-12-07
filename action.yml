@@ -11,5 +11,5 @@ inputs:
     description: 'The full helm command to run (including helm)'
     required: false
 runs:
-  using: 'node12'
+  using: 'node16'
   main: 'main.js'

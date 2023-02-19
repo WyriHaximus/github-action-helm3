@@ -1,6 +1,6 @@
-# Helm 3 Github Action
+# Helm Github Action
 
-Slim wrapper around [helm3](https://github.com/helm/helm) Docker image
+Runs given Helm/shell commands after ensuring Helm and kubectl are installed or pull in it's own. 
 
 ![Example output showing this action in action](images/output.png)
 
@@ -10,7 +10,7 @@ This action supports the following options.
 
 ### exec
 
-The command to execute inside the Docker image.
+The shell commands to run.
 
 * *Required*: `Yes`
 * *Type*: `string`
@@ -44,17 +44,11 @@ jobs:
   deployment:
     runs-on: 'ubuntu-latest'
     steps:
-      - uses: actions/checkout@v1
-      - name: Prep helm chart
-        run: |
-          mv ./.helm/app/Chart.yaml ./.helm/app/Chart.old.yaml &&
-          cat ./.helm/app/Chart.old.yaml | grep -v appVersion > ./.helm/app/Chart.yaml &&
-          echo -e "\r\nappVersion: v${GITHUB_REF##*/}\r\n" >> ./.helm/app/Chart.yaml &&
-          cat ./.helm/app/Chart.yaml
+      - uses: actions/checkout@v3
       - name: Deploy
-        uses: WyriHaximus/github-action-helm3@v2
+        uses: WyriHaximus/github-action-helm3@v3
         with:
-          exec: helm upgrade APP_NAME ./.helm/app/ --install --wait --atomic --namespace=APP_NAMESPACE --set=app.name=APP_NAME --values=./.helm/app/values.yaml
+          exec: helm upgrade APP_NAME ./.helm/app/ --install --wait --atomic --namespace=APP_NAMESPACE --values=./.helm/app/values.yaml
           kubeconfig: '${{ secrets.KUBECONFIG }}'
 ```
 
@@ -68,16 +62,16 @@ jobs:
   lint-helm:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v1
+      - uses: actions/checkout@v3
       - name: Lint Helm
-        uses: WyriHaximus/github-action-helm3@v2
+        uses: WyriHaximus/github-action-helm3@v3
         with:
           exec: helm lint ./.helm/app/
 ```
 
 ## License ##
 
-Copyright 2020 [Cees-Jan Kiewiet](http://wyrihaximus.net/)
+Copyright 2023 [Cees-Jan Kiewiet](http://wyrihaximus.net/)
 
 Permission is hereby granted, free of charge, to any person
 obtaining a copy of this software and associated documentation

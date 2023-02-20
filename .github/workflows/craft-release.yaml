@@ -1,4 +1,6 @@
 name: Create Release
+env:
+  MILESTONE: ${{ github.event.milestone.title }}
 on:
   milestone:
     types:

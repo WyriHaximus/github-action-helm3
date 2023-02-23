@@ -1,5 +1,6 @@
 async function main() {
     const homedir = require('os').homedir();
+    const tempdir = require('os').tmpdir();
     const fs = require('fs');
     const {execFile} = require('child_process');
     const tmp = require('tmp');
@@ -15,12 +16,12 @@ async function main() {
         postfix: '.sh',
         discardDescriptor: true,
     });
-    const dockerKubeConfigDir = process.cwd() + '/docker-kube-config-' + Math.random().toString(36).replace(/[^a-z]+/g, '').substr(0, 13);
+    const dockerKubeConfigDir = tempdir + '/docker-kube-config-' + Math.random().toString(36).replace(/[^a-z]+/g, '').substr(0, 13);
     fs.mkdirSync(dockerKubeConfigDir, {
         mode: 0o777,
     });
     const dockerKubeConfig = dockerKubeConfigDir + '/config';
-    const helmCacheDir = process.cwd() + '/helm-cache-' + Math.random().toString(36).replace(/[^a-z]+/g, '').substr(0, 13);
+    const helmCacheDir = tempdir + '/helm-cache-' + Math.random().toString(36).replace(/[^a-z]+/g, '').substr(0, 13);
     fs.mkdirSync(helmCacheDir, {
         mode: 0o744,
     });

@@ -25,6 +25,13 @@ be appended to `~/.kube/config`, and will always be removed afterwards.*
 * *Required*: `no`
 * *Type*: `string`
 
+## overrule_existing_kubeconfig
+
+When this input is set to `"true"` it will swap out the `.kube/config` with the one provided.
+
+* *Required*: `no`
+* *Type*: `string`
+
 ## Output
 
 This action has only one output and that's the `number` output. This is the number you see in the HTML URL of the
@@ -50,6 +57,7 @@ jobs:
         with:
           exec: helm upgrade APP_NAME ./.helm/app/ --install --wait --atomic --namespace=APP_NAMESPACE --values=./.helm/app/values.yaml
           kubeconfig: '${{ secrets.KUBECONFIG }}'
+          overrule_existing_kubeconfig: "true"
 ```
 
 The following example shows how you can use this action to lint your helm files in (for example) `./.helm/app/`.

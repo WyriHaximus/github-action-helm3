@@ -10,6 +10,9 @@ inputs:
   kubeconfig:
     description: 'The full helm command to run (including helm)'
     required: false
+  overrule_existing_kubeconfig:
+    description: 'The full helm command to run (including helm)'
+    required: false
 runs:
   using: 'node16'
   main: 'main.js'

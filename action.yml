@@ -8,10 +8,13 @@ inputs:
     description: 'The full helm command to run (including helm)'
     required: true
   kubeconfig:
-    description: 'The full helm command to run (including helm)'
+    description: 'The contents of the ~/.kube/config used by kubectl and helm to authenticate and communicate with your kubernetes cluster. '
     required: false
   overrule_existing_kubeconfig:
-    description: 'The full helm command to run (including helm)'
+    description: 'When this input is set to "true" it will swap out the .kube/config with the one provided.'
+    required: false
+  helm_version:
+    description: 'Helm version to use in v3.x.x format'
     required: false
 runs:
   using: 'node20'

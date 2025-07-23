@@ -81,7 +81,7 @@ async function main() {
         'curl -s -o ' + dockerKubeConfigDir + ' "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/$(dpkg --print-architecture)/kubectl" 2>&1\n' +
         'curl -fsSL -o get_helm.sh https://raw.githubusercontent.com/helm/helm/master/scripts/get-helm-3 > /dev/null 2>&1\n' +
         'chmod 700 get_helm.sh > /dev/null 2>&1\n' +
-        'HELM_INSTALL_DIR=' + dockerKubeConfigDir + ' ./get_helm.sh > /dev/null 2>&1\n' +
+        'DESIRED_VERSION="' + (process.env.INPUT_HELM_VERSION || '') + '" HELM_INSTALL_DIR=' + dockerKubeConfigDir + ' ./get_helm.sh > /dev/null 2>&1\n' +
         'rm ./get_helm.sh > /dev/null 2>&1\n' +
         ' \n' +
         process.env.INPUT_EXEC

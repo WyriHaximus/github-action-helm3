@@ -12,7 +12,7 @@ jobs:
       REF: ${{ steps.generate-ref.outputs.ref }}
     steps:
       - run: helm version
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@08eba0b27e820071cde6df949e0beb9ba4906955 # v4
       - run: helm version
       - id: generate-ref
         name: Generate Ref
@@ -51,7 +51,7 @@ jobs:
           - "helm plugin install https://github.com/hypnoglow/helm-s3.git && helm plugin list"
           - "helm env"
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@08eba0b27e820071cde6df949e0beb9ba4906955 # v4
       - uses: ./
         with:
           exec: ${{ matrix.exec }}
@@ -65,7 +65,7 @@ jobs:
       matrix:
         runner: ${{ fromJson(needs.runner-matrix.outputs.runner) }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@08eba0b27e820071cde6df949e0beb9ba4906955 # v4
       - run: helm version
       - uses: ./
         id: helm3
@@ -93,9 +93,9 @@ jobs:
       matrix:
         runner: ${{ fromJson(needs.runner-matrix.outputs.runner) }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@08eba0b27e820071cde6df949e0beb9ba4906955 # v4
       - name: Create k8s Kind Cluster
-        uses: helm/kind-action@v1.12.0
+        uses: helm/kind-action@a1b0e391336a6ee6713a0583f8c6240d70863de3 # v1.12.0
       - name: Get running image ID
         id: ps
         run: printf "::set-output name=id::%s" $(docker ps --format "{{.ID}}")
@@ -181,9 +181,9 @@ jobs:
       matrix:
         runner: ${{ fromJson(needs.runner-matrix.outputs.runner) }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@08eba0b27e820071cde6df949e0beb9ba4906955 # v4
       - name: Create k8s Kind Cluster
-        uses: helm/kind-action@v1.12.0
+        uses: helm/kind-action@a1b0e391336a6ee6713a0583f8c6240d70863de3 # v1.12.0
       - name: Get running image ID
         id: ps
         run: printf "::set-output name=id::%s" $(docker ps --format "{{.ID}}")
@@ -243,7 +243,7 @@ jobs:
             printf "::set-output name=cnt::%s" $(cat ~/.kube/config)
           kubeconfig: ${{ steps.kubeconfig.outputs.kubeconfig }}
       - name: "Assert kubeconfig really contains: junk"
-        uses: nick-fields/assert-action@v2
+        uses: nick-fields/assert-action@aa0067e01f0f6545c31755d6ca128c5a3a14f6bf # v2
         with:
           expected: junk
           actual: ${{ steps.getkubeconfigcontents.outputs.cnt }}
@@ -289,9 +289,9 @@ jobs:
       matrix:
         runner: ${{ fromJson(needs.runner-matrix.outputs.runner) }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@08eba0b27e820071cde6df949e0beb9ba4906955 # v4
       - name: Create k8s Kind Cluster
-        uses: helm/kind-action@v1.12.0
+        uses: helm/kind-action@a1b0e391336a6ee6713a0583f8c6240d70863de3 # v1.12.0
       - name: Get running image ID
         id: ps
         run: printf "::set-output name=id::%s" $(docker ps --format "{{.ID}}")

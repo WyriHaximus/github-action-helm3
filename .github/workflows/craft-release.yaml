@@ -13,7 +13,7 @@ jobs:
       changelog: ${{ steps.changelog.outputs.changelog }}
     steps:
       - name: Generate changelog
-        uses: WyriHaximus/github-action-jwage-changelog-generator@v1
+        uses: WyriHaximus/github-action-jwage-changelog-generator@ede372670d88c4afefdffbcba5527e9e3a37778a # v1
         id: changelog
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -29,7 +29,7 @@ jobs:
       - generate-changelog
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@08eba0b27e820071cde6df949e0beb9ba4906955 # v4
         with:
           fetch-depth: 0 # Required due to the way Git works, without it this action won't be able to find any or the correct tags
       - name: Create release/${{ env.MILESTONE }} branch
@@ -50,7 +50,7 @@ jobs:
           MILESTONE_DESCRIPTION: ${{ github.event.milestone.description }}
           CHANGELOG: ${{ needs.generate-changelog.outputs.changelog }}
       - name: Create release
-        uses: actions/create-release@v1
+        uses: actions/create-release@0cb9c9b65d5d1901c1f53e5e66eaf4afd303e70e # v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
@@ -60,7 +60,7 @@ jobs:
           draft: false
           prerelease: false
       - name: Updated related tags
-        uses: haya14busa/action-update-semver@v1
+        uses: haya14busa/action-update-semver@22a3666f9309f0d72ab0ea6c49b7a8019c1eab38 # v1
         with:
           tag: ${{ env.MILESTONE }}
 

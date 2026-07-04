@@ -96,7 +96,7 @@ async function main() {
 
     try {
         console.log("\033[36mExecuting helm\033[0m");
-        result = await new Promise((resolve, reject) => {
+        const result = await new Promise((resolve, reject) => {
             const process = execFile(execShFile.name);
             process.stdout.on('data', console.log);
             process.stderr.on('data', console.log);
@@ -111,10 +111,16 @@ async function main() {
                 }
             });
         });
+        const [output, notes] = result.split(/^NOTES:$/m);
         fs.appendFileSync(
             process.env.GITHUB_OUTPUT,
-            `helm_output<<${multiLineDelimiter}\n${result.trim()}\n${multiLineDelimiter}\n`
+            `helm_output<<${multiLineDelimiter}\n${output}\n${multiLineDelimiter}\n`
         );
+        fs.appendFileSync(
+            process.env.GITHUB_OUTPUT,
+            `helm_notes<<${multiLineDelimiter}\n${notes}\n${multiLineDelimiter}\n`
+        );
+        
     } catch (error) {
         process.exit(1);
     } finally {

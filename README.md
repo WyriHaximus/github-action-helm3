@@ -32,10 +32,14 @@ When this input is set to `"true"` it will swap out the `.kube/config` with the 
 * *Required*: `no`
 * *Type*: `string`
 
-## Output
+## Outputs
 
-This action has only one output and that's the `number` output. This is the number you see in the HTML URL of the
-milestone and can be used to refer to in other actions when creating PR's as shown in the example below.
+* `helm_output`
+  * The output of the helm command. Includes everything before the `NOTES:` line in the output of the `helm` command from both `STDOUT` and `STDERR`.
+* `helm_notes`
+  * The rendered output of the NOTES.txt template from the helm chart. Includes everything after the `NOTES:` line in the output of the `helm` command from both `STDOUT` and `STDERR`.
+* `number`
+  * This is the number you see in the HTML URL of the milestone, and can be used to refer to in other actions when creating PR's as shown in the example below.
 
 ## Examples
 

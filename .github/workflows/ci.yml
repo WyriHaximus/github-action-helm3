@@ -243,7 +243,7 @@ jobs:
             printf "::set-output name=cnt::%s" $(cat ~/.kube/config)
           kubeconfig: ${{ steps.kubeconfig.outputs.kubeconfig }}
       - name: "Assert kubeconfig really contains: junk"
-        uses: nick-fields/assert-action@9d4e34b06ce426ffbec11d91e220b8a90fd36bdb # v3.0.1
+        uses: nick-fields/assert-action@0efd6166067d9c59d89c710fab4f79fb066f8985 # v4.0.1
         with:
           expected: junk
           actual: ${{ steps.getkubeconfigcontents.outputs.cnt }}

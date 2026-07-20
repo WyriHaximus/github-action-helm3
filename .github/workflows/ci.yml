@@ -12,7 +12,7 @@ jobs:
       REF: ${{ steps.generate-ref.outputs.ref }}
     steps:
       - run: helm version
-      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - run: helm version
       - id: generate-ref
         name: Generate Ref
@@ -51,7 +51,7 @@ jobs:
           - "helm plugin install https://github.com/hypnoglow/helm-s3.git && helm plugin list"
           - "helm env"
     steps:
-      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - uses: ./
         with:
           exec: ${{ matrix.exec }}
@@ -65,7 +65,7 @@ jobs:
       matrix:
         runner: ${{ fromJson(needs.runner-matrix.outputs.runner) }}
     steps:
-      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - run: helm version
       - uses: ./
         id: helm3
@@ -93,7 +93,7 @@ jobs:
       matrix:
         runner: ${{ fromJson(needs.runner-matrix.outputs.runner) }}
     steps:
-      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - name: Create k8s Kind Cluster
         uses: helm/kind-action@ef37e7f390d99f746eb8b610417061a60e82a6cc # v1.14.0
       - name: Get running image ID
@@ -181,7 +181,7 @@ jobs:
       matrix:
         runner: ${{ fromJson(needs.runner-matrix.outputs.runner) }}
     steps:
-      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - name: Create k8s Kind Cluster
         uses: helm/kind-action@ef37e7f390d99f746eb8b610417061a60e82a6cc # v1.14.0
       - name: Get running image ID
@@ -289,7 +289,7 @@ jobs:
       matrix:
         runner: ${{ fromJson(needs.runner-matrix.outputs.runner) }}
     steps:
-      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - name: Create k8s Kind Cluster
         uses: helm/kind-action@ef37e7f390d99f746eb8b610417061a60e82a6cc # v1.14.0
       - name: Get running image ID
